@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Badge, Form, FormGroup, Input, Label } from "sveltestrap";
   import { Toast, ToastBody, ToastHeader } from "sveltestrap";
+  import { Accordion, AccordionItem } from 'sveltestrap';
   import { Button } from "sveltestrap";
   import Counter from "./Counter.svelte";
   import welcome from "$lib/images/svelte-welcome.webp";
@@ -20,6 +21,21 @@
   let bambiniS: string[] = [];
   let adultiS: string[] = [];
 
+  let total = 0;
+  let anticipo = 0;
+
+  type CheckedMap = {
+    [key: string]: boolean;
+  };
+
+  type NumberMap = {
+    [key: string]: number;
+  };
+
+  let residenziali: CheckedMap = {}
+  let bambiniResidenziali: CheckedMap = {}
+  let bambiniEta: NumberMap = {}
+
   $: {
     bambiniS = [];
     for (let i = 0; i < bambini; i++) {
@@ -34,15 +50,54 @@
     }
   }
 
+  function computo(
+    residenziali: CheckedMap,
+    bambiniResidenziali: CheckedMap,
+    bambiniEta: NumberMap
+    ) {
+    total = 0;
+    anticipo = 0;
+    for (let key in residenziali) {
+      if (residenziali[key]) {
+        total += 53
+      } else {
+        total += 75
+      }
+    }
+
+    for (let key in bambiniResidenziali) {
+      if (!bambiniResidenziali[key]) {
+        total += 45
+      } else {
+        if (parseInt(key) < 2) {
+          total += 40
+        } else {
+          total += 20
+        }
+      }
+      if (bambiniEta[key] > 12) {
+        total += 5
+      }
+    }
+
+    console.log(total)
+  }
+
+  $: computo(
+    residenziali,
+    bambiniResidenziali,
+    bambiniEta
+  )
+
   const colors = [
-    'primary',
-    'secondary',
-    'success',
-    'danger',
-    'warning',
-    'info',
-    'light',
-    'dark'
+    "primary",
+    "secondary",
+    "success",
+    "danger",
+    "warning",
+    "info",
+    "light",
+    "dark",
   ];
 </script>
 
@@ -57,7 +112,7 @@
   </CardHeader>
   <CardBody>
     <CardSubtitle>20/26 Agosto 2023 - Cetraro</CardSubtitle>
-	<!--
+    <!--
     <CardText>
       Some quick example text to build on the card title and make up the bulk of
       the card's content.
@@ -65,86 +120,133 @@
     <Button>Button</Button>
 	-->
   </CardBody>
-  <CardFooter><Badge>12&euro;</Badge></CardFooter>
 </Card>
 
-<div class="p-3 bg-primary mb-3">
-  <Toast class="me-1">
-    <ToastHeader>Sveltestrap</ToastHeader>
-    <ToastBody>
-      This is a toast on a primary background — check it out!
-    </ToastBody>
-  </Toast>
-</div>
+{#if total > 0}
+  <div class="p-3 bg-primary mb-3">
+    <Toast class="me-1">
+      <ToastHeader>Totale</ToastHeader>
+      <ToastBody>
+        Il totale da versare è di {total}&euro;<br />
+        L'anticipo è di {anticipo}&euro; da versare ad Alessandro a questo IBAN:<br
+        />
+        IT04Q0503403272000000011917
+      </ToastBody>
+    </Toast>
+  </div>
+{/if}
 
-<section>
-  <Form>
-    <Card class="mb-3">
-      <CardBody>
-        <CardText>
-          <FormGroup floating label="Numero Adulti">
-            <Input bind:value={adulti} placeholder="Enter a value" />
-          </FormGroup>
-        </CardText>
-		<small>
-			Residenziali 53&euro;<br/>
-			Non Residenzial 75&euro;
-		</small>
-      </CardBody>
-      <CardFooter><Badge>12&euro;</Badge></CardFooter>
-    </Card>
+<Accordion>
+  <AccordionItem header="Adulti">
+    <section>
+      <Form>
+        <Card class="mb-3">
+          <CardBody>
+            <CardText>
+              <FormGroup floating label="Numero Adulti">
+                <Input bind:value={adulti} placeholder="Enter a value" />
+              </FormGroup>
+            </CardText>
+            <small>
+              Residenziali 53&euro;<br />
+              Non Residenzial 75&euro;
+            </small>
+          </CardBody>
+          <!--
+          <CardFooter><Badge>12&euro;</Badge></CardFooter>
+          -->
+        </Card>
+    
+        {#if adulti > 0}
+            {#each adultiS as item, i}
+            <Card class="mb-3">
+              <CardBody color={colors[i]}>
+                <FormGroup>
+                  <Input
+                    bind:checked={residenziali[item]}
+                    onclick={() => { console.log(residenziali)}}
+                    type="checkbox"
+                    label="Adulto {i+1} Residenziale"
+                  />
+                </FormGroup>
+              </CardBody>
+              <CardFooter>
+                <Badge>
+                  {#if residenziali[item]}
+                    53&euro;
+                  {:else}
+                    75&euro;
+                  {/if}
+              </Badge></CardFooter>
+            </Card>
+            {/each}
+        {/if}
+      </Form>
+    </section>
+  </AccordionItem>
 
-    {#if adulti > 0}
-	<Card class="mb-3">
-        {#each adultiS as item, i}
-		<CardBody color={colors[i]} >
-			<FormGroup floating label="Età Adulto {item}">
-				<Input placeholder="Enter a value" />
-				<Input type="checkbox" label="Residenziale" />
-			</FormGroup>
-		</CardBody>
-        {/each}
-	</Card>
-    {/if}
+  <AccordionItem header="Bambini">
+    <section>
+      <Form>
+        <Card class="mb-3">
+          <CardBody>
+            <CardText>
+              <FormGroup floating label="Numero Bambini">
+                <Input bind:value={bambini} placeholder="Enter a value" />
+              </FormGroup>
+            </CardText>
+            <small>
+              Residenziali 0-2 anni 40&euro;<br />
+              Residenziali &gt; 2 anni 40&euro;<br />
+              Residenziali dal terzo figlio 20&euro;<br/>
+              Non Residenzial &gt; 2 anni 45&euro;
+            </small>
+          </CardBody>
+          <!--
+          <CardFooter><Badge>12&euro;</Badge></CardFooter>
+          -->
+        </Card>
+    
+        {#if bambini > 0}
+            {#each bambiniS as item, i}
+            <Card class="mb-3">
+              <CardBody color={colors[i]}>
+                <FormGroup>
+                  <Input bind:value={bambiniEta[item]} placeholder="Enter a value" />
+                  <Input
+                    bind:checked={bambiniResidenziali[item]}
+                    onclick={() => { console.log(bambiniResidenziali)}}
+                    type="checkbox"
+                    label="Bambino {i+1} Residenziale"
+                  />
+                </FormGroup>
+              </CardBody>
+              <CardFooter>
+                <Badge>
+                  {#if bambiniResidenziali[item]}
+                    {#if i < 2}
+                      {#if bambiniEta[item] > 2}
+                        40&euro;{#if bambiniEta[item] > 12}+ 5&euro; tassa di soggiorno{/if}
+                      {:else}
+                        40&euro;{#if bambiniEta[item] > 12}+ 5&euro; tassa di soggiorno{/if}
+                      {/if} 
+                    {:else}
+                      20&euro;{#if bambiniEta[item] > 12}+ 5&euro; tassa di soggiorno{/if}
+                    {/if}
+                  {:else}
+                    45&euro;{#if bambiniEta[item] > 12}+ 5&euro; tassa di soggiorno{/if}
+                  {/if}
+                </Badge></CardFooter>
+            </Card>
+            {/each}
+        {/if}
+      </Form>
+    </section>
+  </AccordionItem>
 
-    <FormGroup floating label="Numero Bambini">
-      <Input bind:value={bambini} placeholder="Enter a value" />
-    </FormGroup>
-
-    {#each bambiniS as item, i}
-      <FormGroup floating label="Età Bimbo {item}">
-        <Input placeholder="Enter a value" />
-      </FormGroup>
-    {/each}
-
-    <FormGroup>
-      <Input id="c1" type="checkbox" label="Check me out" />
-    </FormGroup>
-  </Form>
-
-  <FormGroup floating label="Imposta comunale di soggiorno" />
-</section>
+</Accordion>
 
 <!--
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
-</section>
-
 <style>
 	section {
 		display: flex;
