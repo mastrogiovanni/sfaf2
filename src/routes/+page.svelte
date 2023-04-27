@@ -112,6 +112,20 @@
     return total
   }
 
+  function getNumeroTassaComunale(
+    adulti: number,
+    bambiniResidenziali: CheckedMap,
+    bambiniEta: NumberMap
+  ) {
+    let total = adulti;
+    for (let key in bambiniResidenziali) {
+      if (bambiniEta[key] > 12) {
+        total += 1;
+      }
+    }
+    return total
+  }
+
   function getAnticipo(
     adulti: number, 
     bambini: number, 
@@ -214,7 +228,7 @@
 </Card>
 
 <Accordion>
-  <AccordionItem header="Adulti">
+  <AccordionItem header="Adulti ({getIscrizioneAdulti(residenziali)}&euro;)">
     <section>
       <Form>
         <Card class="mb-3">
@@ -265,7 +279,7 @@
     </section>
   </AccordionItem>
 
-  <AccordionItem header="Bambini">
+  <AccordionItem header="Bambini ({getIscrizioneBambini(bambiniResidenziali, bambiniEta)}&euro;)">
     <section>
       <Form>
         <Card class="mb-3">
@@ -334,7 +348,7 @@
     </section>
   </AccordionItem>
 
-  <AccordionItem active header="Tipo Stanza">
+  <AccordionItem header="Tipo Stanza ({getCostoStanza(adulti, bambiniEta, pensioneCompleta, ariaCondizionata)}&euro;)">
     <Card class="mb-3">
       <CardBody color="primary">
         <FormGroup>
@@ -408,7 +422,7 @@
         <tr>
           <th scope="row">2</th>
           <td>Tassa di Soggiorno</td>
-          <td></td>
+          <td>{getNumeroTassaComunale(adulti, bambiniResidenziali, bambiniEta)}</td>
           <td>{getTassaComunale(adulti, bambiniResidenziali, bambiniEta)}</td>
         </tr>
         <tr>
