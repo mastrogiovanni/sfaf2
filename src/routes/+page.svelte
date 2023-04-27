@@ -411,41 +411,41 @@
           <th scope="row">1</th>
           <td>Iscrizione Adulti</td>
           <td>{adulti}</td>
-          <td>{getIscrizioneAdulti(residenziali)}</td>
+          <td>{getIscrizioneAdulti(residenziali)}&euro;</td>
         </tr>
         <tr>
           <th scope="row">2</th>
           <td>Iscrizione Bambini</td>
           <td>{bambini}</td>
-          <td>{getIscrizioneBambini(bambiniResidenziali, bambiniEta)}</td>
-        </tr>
-        <tr>
-          <th scope="row">2</th>
-          <td>Tassa di Soggiorno</td>
-          <td>{getNumeroTassaComunale(adulti, bambiniResidenziali, bambiniEta)}</td>
-          <td>{getTassaComunale(adulti, bambiniResidenziali, bambiniEta)}</td>
+          <td>{getIscrizioneBambini(bambiniResidenziali, bambiniEta)}&euro;</td>
         </tr>
         <tr>
           <th scope="row">3</th>
+          <td>Tassa di Soggiorno</td>
+          <td>{getNumeroTassaComunale(adulti, bambiniResidenziali, bambiniEta)}</td>
+          <td>{getTassaComunale(adulti, bambiniResidenziali, bambiniEta)}&euro;</td>
+        </tr>
+        <tr>
+          <th scope="row">4</th>
           <td>Costo Stanza</td>
           <td>
             Aria Condizionata: {#if ariaCondizionata}Si{:else}No{/if}<br/>
             Pensione Completa: {#if pensioneCompleta}Si{:else}No{/if}<br/>
           </td>
-          <td>{getCostoStanza(adulti, bambiniEta, pensioneCompleta, ariaCondizionata)}</td>
+          <td>{getCostoStanza(adulti, bambiniEta, pensioneCompleta, ariaCondizionata)}&euro;</td>
         </tr>
-        <hr/>
+        <tr></tr>
         <tr>
           <th scope="row">Totale</th>
           <td></td>
           <td></td>
-          <td>{total}</td>
+          <td>{total}&euro;</td>
         </tr>
         <tr>
           <th scope="row">Acconto</th>
           <td></td>
           <td></td>
-          <td>{anticipo}</td>
+          <td>{anticipo}&euro;</td>
         </tr>
       </tbody>
     </Table>
